@@ -48,6 +48,13 @@ wrappedPhase = processing.processFourier(hologram);
 %
 % Đầu ra:
 %   - unwrapped_Phase: Ma trận pha đã tháo gỡ.
+% Ví dụ:
+%   unwrapped_Phase = unwrapPhase(wrappedPhase, 'ls', 'dct'); % LS với DCT
+%   unwrapped_Phase = unwrapPhase(wrappedPhase, 'tie', 'fft'); % TIE với FFT
+%   unwrapped_Phase = unwrapPhase(wrappedPhase, 'linh'); % Phương pháp của a Linh
+%   unwrapped_Phase = unwrapPhase(wrappedPhase, '2dweight'); % 2D weighted phase unwrapping
+%
+% Nếu không nhập methodGroup và methodType, mặc định sử dụng 'ls' với 'dct'.
 
 methodGroup = 'poisson';
 methodType ='';
