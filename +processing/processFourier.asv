@@ -1,0 +1,87 @@
+function wrappedPhase = processFourier(hologram, selectRegion_HCN, maxIntensity)
+% processFourier: thực hiện các phép biến đổi Fourier và chọn vùng bậc +1
+
+if nargin < 2 || isempty(maxIntensity) || isempty(selectRegion_HCN)
+    selectRegion_HCN = true;
+    maxIntensity = 100000;
+end
+
+%% Chuyển ảnh hologram sang grayscale
+hologramGray = myConvGrayScale(hologram);  % Chuyển đổi ảnh sang grayscale
+[numRows, numCols] = size(hologramGray);  % Lấy kích thước ảnh
+
+%% Biến đổi Fourier và chọn ROI
+fourierTransform = fftshift(fft2(hologramGray));  % Biến đổi Fourier
+
+% Hiển thị ảnh đã biến đổi Fourier
+figure;
+imshow(abs(fourierTransform), [1, maxIntensity]);
+title('Biến đổi Fourier của Hologram');
+
+%% Xác định +1 của phổ
+if selectRegion_HCN
+    [pos, xRec, yRec, widthRec, heightRec] = myDrawRec();
+    roiContent = fourierTransform(yRec:yRec + heightRec - 1, xRec:xRec + widthRec - 1);
+else
+    [centerCir_X, centerCir_Y, radiusCir] = myDrawCir();
+    roiContent = fourierTransform(centerCir_Y - radiusCir:centerCir_Y + radiusCir - 1, ...
+                                  centerCir_X - radiusCir:centerCir_X + radiusCir - 1);
+end
+
+%% Dịch ROI vào trung tâm
+newFourierTransform = zeros(size(fourierTransform));
+centerX = round(numRows / 2);
+centerY = round(numCols / 2);
+
+if selectRegion_HCN
+    newFourierTransform(centerX - round(heightRec / 2):centerX + round(heightRec / 2) - 1, ...
+                        centerY - round(widthRec / 2):centerY + round(widthRec / 2) - 1) = roiContent;
+else
+    newFourierTransform(centerX - radiusCir:centerX + radiusCir - 1, ...
+                        centerY - radiusCir:centerY + radiusCir - 1) = roiContent;
+    [xGrid, yGrid] = meshgrid(1:numCols, 1:numRows);
+    circleMask = sqrt((xGrid - centerY).^2 + (yGrid - centerX).^2) <= radiusCir;
+    newFourierTransform(~circleMask) = 0;
+end
+
+%% Biến đổi ngược và lấy pha
+finalPhase = ifft2(ifftshift(newFourierTransform));
+wrappedPhase = angle(finalPhase);
+
+% Hiển thị kết quả
+figure;
+imshow(abs(newFourierTransform), [1, maxIntensity]);
+title('Ảnh sau khi dịch vào tâm');
+
+figure;
+mesh(wrappedPhase');
+title('Pha chưa Unwrapping');
+end
+
+%% Hàm vẽ hình chữ nhật
+function [pos, xRec, yRec, widthRec, heightRec] = myDrawRec()
+roi = drawrectangle();
+wait(roi);
+pos = round(roi.Position);
+xRec = pos(1);
+yRec = pos(2);
+widthRec = pos(3);
+heightRec = pos(4);
+end
+
+%% Hàm vẽ đường tròn
+function [centerCir_X, centerCir_Y, radiusCir] = myDrawCir()
+roi = drawcircle();
+wait(roi);
+centerCir_X = round(roi.Center(1));
+centerCir_Y = round(roi.Center(2));
+radiusCir = round(roi.Radius);
+end
+
+%% Hàm chuyển sang grayscale
+function output = myConvGrayScale(inputImage)
+if size(inputImage, 3) > 1
+    inputImage = rgb2gray(inputImage);
+end
+output = double(inputImage);
+end
