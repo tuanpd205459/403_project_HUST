@@ -1,4 +1,4 @@
-####
+# Thuật toán tái tạo H-L-GAM
 #### 🔹 **Mục đích**
 Đoạn code này thực hiện **xử lý ảnh H và tính toán độ nhám bề mặt 3D**, bao gồm:  
 ✅ Đọc ảnh H  
