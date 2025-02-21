@@ -5,7 +5,7 @@ function difference_Matrix = myDifference (inputMatrix, poly_order)
     for i = 1:size(inputMatrix, 1)
         row_vector = inputMatrix(i, :);
         % Tính giá trị trung binh của hàng i
-        meanLine_row = myMeanLine(row_vector,poly_order);
+        meanLine_row = processing.postProcess.myMeanLine(row_vector,poly_order);
         % Tính sai lech hang i
         difference_Matrix (i,:) = inputMatrix(i,:) - meanLine_row;
     end

@@ -1,30 +1,26 @@
 function crossLine = myCrossSection(inputSurface, x1, y1, x2, y2)
-    if(x1 ~= x2)
-        num_samples = abs(x2- x1);
-        % Tạo các giá trị x và y dọc theo đường thẳng sử dụng nội suy
-        x = linspace(x1, x2, num_samples);
-        y = linspace(y1, y2,num_samples);
-        
-        % Nội suy các giá trị cường độ dọc theo đường thẳng
-        crossLine = interp2(inputSurface, x, y);
-%         Vẽ mặt cắt ngang của cường độ
-        
-        x_micromet = (1:num_samples)*3.45;
-        figure;
-        plot(x_micromet, crossLine);
-        title('MCN pha');
-        xlabel('x \mum');
-        ylabel('y (nanomet)');
-        
+    % Kiểm tra kích thước ảnh
+    [rows, cols] = size(inputSurface);
+
+    % Xử lý đường ngang (cùng hàng, khác cột)
+    if y1 == y2  
+        % Giới hạn x trong phạm vi ảnh
+        x1 = max(1, min(cols, round(x1)));
+        x2 = max(1, min(cols, round(x2)));
+
+        % Lấy dữ liệu trực tiếp từ hàng y1
+        crossLine = inputSurface(y1, x1:x2);
+
+    % Xử lý đường thẳng đứng (cùng cột, khác hàng)
+    elseif x1 == x2  
+        % Giới hạn y trong phạm vi ảnh
+        y1 = max(1, min(rows, round(y1)));
+        y2 = max(1, min(rows, round(y2)));
+
+        % Lấy dữ liệu trực tiếp từ cột x1
+        crossLine = inputSurface(y1:y2, x1);
+
     else
-        num_samples = abs(y2- y1);
-        % Tạo các giá trị x và y dọc theo đường thẳng sử dụng nội suy
-        x = linspace(x1, x2, num_samples);
-        y = linspace(y1, y2,num_samples);
-        
-        % Nội suy các giá trị cường độ dọc theo đường thẳng
-    %    crossLine = interp2(inputSurface, y, x); 
-         crossLine = interp2(inputSurface, x, y);
-    %     crossLine = crossLine([2,1]);
+        error('Đường không thẳng hàng hoặc cột, vui lòng chọn lại.');
     end
 end

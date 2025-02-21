@@ -71,7 +71,7 @@ switch lower(methodGroup)
         end
 
     case 'linh' % Phương pháp a Linh
-        unwrapped_Phase = unwrap_phase_Linh(wrappedPhase);
+        unwrapped_Phase = unwrap_phase_linh(wrappedPhase);
         
     case '2dweight' % Phương pháp 2D weighted phase unwrapping
         unwrapped_Phase = phase_unwrap_2dweight(wrappedPhase);

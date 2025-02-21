@@ -4,7 +4,7 @@ close all;
 clc;
 
 %% Additional file
-filePath = 'C:\path\to\your\folder';
+filePath = 'C:\Users\admin\Máy tính\Lab thầy Tùng\Tài liệu a Tuân\Ảnh mẫu';
 addpath(filePath);
 
 %% Biến toàn cục (tham số đầu vào các hàm)
@@ -21,7 +21,7 @@ maxIntensity = 100000;  % Cường độ tối đa để hiển thị ảnh
 %   inputManual : logical
 %       1 - Đọc file bằng tay từ `filePath`
 %       0 - Tự động tìm file mới nhất trong `folder_path`
-inputManual = 0;
+inputManual = 1;
 folder_path = 'C:\Users\admin\Máy tính\Lab thầy Tùng\Thi nghiem\6-12';
 filePath = '8.bmp';
 hologram = processing.loadHologram(inputManual, filePath, folder_path);
@@ -74,17 +74,26 @@ r = r(offSet:end-offSet,offSet:end-offSet);  % cắt/chọn vùng để ve do th
 % r = my_offSet(r);           % xoay ngang mặt phẳng tái tạo
 temp_r = r;
 
-
+%% Xác định chiều vân (ngang/dọc)
+detectFringe = processing.postProcess.detectFringeSobel(r);
+disp(detectFringe);
+if strcmpi(detectFringe, 'vân ngang')
+    r = r';
+end
+%%
 imagesc(r);
-hold on;                    
-positionLine = myDrawLine();  
-title('Mặt phẳng pha theo chiều'); % Đặt tiêu đề cho hình ảnh
+hold on;    
+
+% Vẽ đường thằng cắt ngang
+positionLine = processing.postProcess.myDrawLine();  
+
+title('Mặt phẳng pha'); % Đặt tiêu đề cho hình ảnh
 %colormap(gray);              
 
-%fprintf('\n %.2f, %.2f, %.2f, %.2f\n', positionLine(1,1), positionLine(1,2), positionLine(2,1), positionLine(2,2));
-crossLine = myCrossSection(r, positionLine(1,1), positionLine(1,2), positionLine(2,1), positionLine(2,2));
-meanLine = myMeanLine(crossLine, poly_order);
-[Ra, Ra_line] = myCalcRa(crossLine, meanLine, DPD);
+crossLine = processing.postProcess.myCrossSection(r, positionLine(1,1), positionLine(1,2), positionLine(2,1), positionLine(2,2));
+meanLine = processing.postProcess.myMeanLine(crossLine, poly_order);
+
+[Ra, Ra_line] = roughness.myCalcRa(crossLine, meanLine, DPD);
 %
 
 numPixels = length(crossLine);
@@ -92,17 +101,18 @@ x_real2D = (1:numPixels)*3.45/DPD;
 
 
 %%
-Rz = myCalcRz(crossLine,meanLine);
+Rz = roughness.myCalcRz(crossLine,meanLine);
+
 % fprintf('Độ nhám bề mặt Rz so với đường trung bình: %.4f\n', Rz);
 %% Tính Sz
-Sz=myCalcSz(r,poly_order);
+Sz=  roughness.myCalcSz(r,poly_order);
 
 %% Độ nhám trung bình Sa
-Sa = myCalcSa(r, poly_order);
+Sa = roughness.myCalcSa(r, poly_order);
 % fprintf('Sa: %.4f %s\n', Sa, dimensional);
 
 %% Độ nhám Sq
-Sq = myCalcSq(r, poly_order);
+Sq = roughness.myCalcSq(r, poly_order);
 % fprintf('Sq: %.4f %s\n', Sq, dimensional);
 
 %% Chuyển đổi đơn vị 
@@ -113,7 +123,7 @@ if max(r(:)) < 1
     Rz = Rz * 10^3;
     Sa = Sa * 10^3;
     Sq = Sq * 10^3;
-    Sz=Sz*10^3;
+    Sz = Sz * 10^3;
     meanLine = meanLine * 10^3;
     Ra_line = Ra_line * 10^3;
     crossLine = crossLine * 10^3;
@@ -182,7 +192,7 @@ hold on;
 % Chèn giá trị Sa và Sq vào biểu đồ
 Sa_text = ['Sa: ', num2str(Sa, '%.4f'), ' ', dimensional];
 Sq_text = ['Sq: ', num2str(Sq, '%.4f'), ' ', dimensional];
-Sz_text=['Sz: ', num2str(Sz, '%.4f'), ' ', dimensional];
+Sz_text = ['Sz: ', num2str(Sz, '%.4f'), ' ', dimensional];
 dim1 = [0.15, 0.9, 0, 0]; % Vị trí và kích thước hộp chứa Sa
 dim2 = [0.15, 0.85, 0, 0]; % Vị trí và kích thước hộp chứa Sq
 dim3=[0.15, 0.8, 0, 0]; % Vị trí và kích thước hộp chứa Sz
@@ -191,8 +201,8 @@ annotation('textbox', dim1, 'String', Sa_text, 'FitBoxToText', 'on', ...
 
 annotation('textbox', dim2, 'String', Sq_text, 'FitBoxToText', 'on', ...
     'EdgeColor', 'none', 'FontSize', 12, 'Color', 'k');
-% annotation('textbox', dim3, 'String', Sz_text, 'FitBoxToText', 'on', ...
-%     'EdgeColor', 'none', 'FontSize', 12, 'Color', 'k');
+annotation('textbox', dim3, 'String', Sz_text, 'FitBoxToText', 'on', ...
+    'EdgeColor', 'none', 'FontSize', 12, 'Color', 'k');
 
 % %%
 % z_map = unwrapped_Phase;
@@ -293,10 +303,6 @@ function offSet_surface = my_offSet(r)
     offSet_surface = r - middle;
 end
 
-
-
-
-
 %% Hàm unwrap của PCA 
 %{
 function up= uphase(wp)
@@ -355,12 +361,12 @@ function output = myCalcRz(inputSuface, inputMeanLine)
 
 end
 
-%% Hàm vẽ đường thẳng
-function positionLine = myDrawLine()
-    roiLine = drawline('Color','r');
-    wait(roiLine);
-    positionLine = round(roiLine.Position);
-end
+% %% Hàm vẽ đường thẳng
+% function positionLine = myDrawLine()
+%     roiLine = drawline('Color','r');
+%     wait(roiLine);
+%     positionLine = round(roiLine.Position);
+% end
 %% hàm vẽ hình chữ nhật
 function [pos, xRec, yRec, widthRec, heightRec] = myDrawRec()
 %     roi = drawrectangle();  % Rectangle
@@ -423,8 +429,6 @@ function [centerCir_X, centerCir_Y, radiusCir] = myDrawCir()
     addlistener(roi, 'MovingROI', @(src, evt) updateCenter(src, centerMarker));
     
     % Hàm cập nhật tâm trong quá trình di chuyển ROI
-
-
 
     wait(roi);
     centerCir_X = round(roi.Center(1));  % Tọa độ x của trung tâm hình tròn

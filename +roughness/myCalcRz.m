@@ -1,7 +1,10 @@
-function [outputArg1,outputArg2] = myCalcRz(inputArg1,inputArg2)
-%MYCALCRZ Summary of this function goes here
-%   Detailed explanation goes here
-outputArg1 = inputArg1;
-outputArg2 = inputArg2;
-end
+%% Hàm tính Rz
+function output = myCalcRz(inputSuface, inputMeanLine)
+    differenceValue = inputSuface - inputMeanLine;
+    sorted_differenceValue = sort(differenceValue(:));
+    
+    top5_sum = sum(sorted_differenceValue(end-4:end));
+    bottom5_sum = sum(sorted_differenceValue(1:5));
+    output = (top5_sum - bottom5_sum) / 5;
 
+end
