@@ -13,6 +13,13 @@
 ## ⚙ **Cách Sử Dụng**
 
 ### 1️⃣ **Chuẩn bị môi trường**
+Thêm thư mục chứa dữ liệu
+Nếu ảnh nằm ngoài thư mục chứa code, cần thêm đường dẫn vào MATLAB bằng lệnh:
+```matlab
+
+filePath = 'C:\Users\admin\Máy tính\Lab thầy Tùng\Tài liệu a Tuân\Ảnh mẫu';
+addpath(filePath);
+```
 - Cập nhật đường dẫn ảnh **filePath** hoặc thư mục **folder_path** chứa ảnh hologram  
 
 ### 2️⃣ **Thiết lập tham số đầu vào**
