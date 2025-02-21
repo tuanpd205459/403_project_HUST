@@ -1,4 +1,9 @@
-function crossLine = myCrossSection(inputSurface, x1, y1, x2, y2)
+function crossLine = myCrossSection(inputSurface, positionLine)
+    x1 = positionLine(1,1);
+    y1 = positionLine(1,2);
+    x2 = positionLine(2,1);
+    y2 = positionLine(2,2);
+
     % Kiểm tra kích thước ảnh
     [rows, cols] = size(inputSurface);
 
