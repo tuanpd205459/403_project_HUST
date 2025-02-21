@@ -14,7 +14,7 @@
 
 ### 1️⃣ **Chuẩn bị môi trường**
 Thêm thư mục chứa dữ liệu
-Nếu ảnh nằm ngoài thư mục chứa code, cần thêm đường dẫn vào MATLAB bằng lệnh:
+- Nếu ảnh nằm ngoài thư mục chứa code, cần thêm đường dẫn vào MATLAB bằng lệnh:
 ```matlab
 
 filePath = 'C:\Users\admin\Máy tính\Lab thầy Tùng\Tài liệu a Tuân\Ảnh mẫu';
