@@ -78,11 +78,11 @@ temp_r = r;
 imagesc(r);
 hold on;                    
 positionLine = myDrawLine();  
-title(['Mặt phẳng pha theo chiều']); % Đặt tiêu đề cho hình ảnh
+title('Mặt phẳng pha theo chiều'); % Đặt tiêu đề cho hình ảnh
 %colormap(gray);              
 
 %fprintf('\n %.2f, %.2f, %.2f, %.2f\n', positionLine(1,1), positionLine(1,2), positionLine(2,1), positionLine(2,2));
-crossLine = myCrossSection(huongMCN, positionLine(1,1), positionLine(1,2), positionLine(2,1), positionLine(2,2));
+crossLine = myCrossSection(r, positionLine(1,1), positionLine(1,2), positionLine(2,1), positionLine(2,2));
 meanLine = myMeanLine(crossLine, poly_order);
 [Ra, Ra_line] = myCalcRa(crossLine, meanLine, DPD);
 %
