@@ -71,6 +71,7 @@ reconSurface = reconSurface(offSet:end-offSet, offSet:end-offSet);
 
 ### 6️⃣ **Xác định chiều vân & mặt cắt ngang**
 ✔ **Xác định chiều vân (ngang/dọc)**  
+* Nếu vân ngang thì xoay 90 độ để phù hợp với việc chọn mặt cắt ngang
 ```matlab
 detectFringe = processing.postProcess.detectFringeSobel(reconSurface);
 if strcmpi(detectFringe, 'vân ngang')
