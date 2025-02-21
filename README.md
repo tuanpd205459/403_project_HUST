@@ -52,7 +52,7 @@ unwrapped_Phase = unwrapping.unwrapPhase(wrappedPhase, methodGroup);
 ✅ **Thay đổi phương pháp tháo gỡ pha**  
 Có thể đổi sang `ls`, `tie`, `2dweight`…  
 ```matlab
-methodGroup = 'ls';
+methodGroup = 'linh';
 methodType = 'dct';
 unwrapped_Phase = unwrapping.unwrapPhase(wrappedPhase, methodGroup, methodType);
 ```
