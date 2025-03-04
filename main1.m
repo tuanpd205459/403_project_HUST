@@ -9,15 +9,51 @@ clc;
 filePath = 'C:\Users\admin\Máy tính\Lab thầy Tùng\Tài liệu a Tuân\Ảnh mẫu';
 addpath(filePath);
 
+%% Thêm đường dẫn tới file chứa hệ số Zernike
+pathZernike_coef = 'C:/Users/admin/Máy tính/Lab thầy Tùng/Code Matlab/holography/+zernike_coefficient';
+
+% Lấy danh sách tất cả các file trong thư mục
+fileList = dir(fullfile(pathZernike_coef, 'ms1.csv')); 
+
+% Tạo đường dẫn đầy đủ đến file CSV
+fileCSV = fullfile(pathZernike_coef, fileList(1).name);
+
+% Đọc dữ liệu từ file CSV
+data = readtable(fileCSV);
+
+% Xác định phạm vi dòng cần đọc
+hang_bat_dau = 1;
+hang_ket_thuc = 63;
+cot_data = 4;
+order = 10; % Bậc cao nhất của Zernike
+
+
+% Lấy dữ liệu trong phạm vi mong muốn
+data_selected = data(hang_bat_dau:hang_ket_thuc, :);
+
+% Lấy hệ số Zernike từ cột mong muốn
+zernike_coeffs = data_selected{:, cot_data}; % Chuyển thành vector
+
+% Assign the first three elements to zero
+zernike_coeffs(1:3) = 0;
+
+%% Reconstructing wavefront from Zernike polys
+% Các biến khác
+grid_size = 100; % Kích thước lưới
+x_axis = [-1,1];
+y_axis = [-1,1];
+
+reconstructZernike.zernike_reconstruction(zernike_coeffs,grid_size);
+reconstructZernike.zernike_reconstruction_non_circle(zernike_coeffs,grid_size,grid_size);
+
 %% Biến toàn cục (tham số đầu vào các hàm)
 DPD = 25;
 he_so = 1;
 poly_order = 3;
 maxIntensity = 100000;  % Cường độ tối đa để hiển thị ảnh
 
-
 %% Đọc ảnh hologram đầu vào:
-
+%
 % loadImgHologram - Đọc ảnh hologram từ file hoặc thư mục
 %
 % Syntax:
