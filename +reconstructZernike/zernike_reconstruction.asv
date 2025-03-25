@@ -7,7 +7,7 @@ function zernike_reconstruction(coefficients, real_radius, lambda, scale_z)
 
     % Number of coefficients
     num_coeff = length(coefficients);
-    grid_size = 100;
+grid_size = 100;
     % Generate a grid of points within the actual radius
     [x, y] = meshgrid(linspace(-real_radius, real_radius, grid_size), ...
                        linspace(-real_radius, real_radius, grid_size));
@@ -40,7 +40,7 @@ function zernike_reconstruction(coefficients, real_radius, lambda, scale_z)
             m = m + 2;
         end
     end
-    
+
     % Scale surface height (reduce Z exaggeration)
     surface = (surface / lambda) * scale_z; % Shrink Z-axis
 
@@ -56,7 +56,7 @@ function zernike_reconstruction(coefficients, real_radius, lambda, scale_z)
     colormap(jet); % Áp dụng bảng màu "jet"
     colorbar;
     view(3); % Góc nhìn 3D
-%     axis equal; % Giữ tỷ lệ trục X, Y đồng nhất
+    axis equal; % Giữ tỷ lệ trục X, Y đồng nhất
 
 end
 

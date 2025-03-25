@@ -9,48 +9,32 @@ clc;
 filePath = 'C:\Users\admin\Máy tính\Lab thầy Tùng\Tài liệu a Tuân\Ảnh mẫu';
 addpath(filePath);
 
+
+
+
 %% Thêm đường dẫn tới file chứa hệ số Zernike
-pathZernike_coef = 'C:/Users/admin/Máy tính/Lab thầy Tùng/Code Matlab/holography/+zernike_coefficient';
+folderPath = "C:\Users\admin\Máy tính\Lab thầy Tùng\Tài liệu a Tuân\Data Obj wave 2\Data Obj wave 2";
+columnIndex = 4;    % Lấy dữ liệu từ cột 4
+rowRange = [1, 66]; % Lấy dữ liệu từ hàng 1 đến 66
 
-% Lấy danh sách tất cả các file trong thư mục
-fileList = dir(fullfile(pathZernike_coef, 'ms1.csv')); 
+meanValues = reconstructZernike.computeMeanFromCSV(folderPath, columnIndex, rowRange);
+% % Hiển thị kết quả
+% disp('Giá trị trung bình cộng của cột 4 từ hàng 1 đến 66 trong tất cả các file CSV:');
+% disp(meanValues);
 
-% Tạo đường dẫn đầy đủ đến file CSV
-fileCSV = fullfile(pathZernike_coef, fileList(1).name);
-
-% Đọc dữ liệu từ file CSV
-data = readtable(fileCSV);
-
-% Xác định phạm vi dòng cần đọc
-hang_bat_dau = 1;
-hang_ket_thuc = 63;
-cot_data = 4;
-order = 10; % Bậc cao nhất của Zernike
-
-
-% Lấy dữ liệu trong phạm vi mong muốn
-data_selected = data(hang_bat_dau:hang_ket_thuc, :);
-
-% Lấy hệ số Zernike từ cột mong muốn
-zernike_coeffs = data_selected{:, cot_data}; % Chuyển thành vector
-
-% Assign the first three elements to zero
-zernike_coeffs(1:3) = 0;
 
 %% Reconstructing wavefront from Zernike polys
-% Các biến khác
-grid_size = 100; % Kích thước lưới
-x_axis = [-1,1];
-y_axis = [-1,1];
+ zernike_coeffs = meanValues;
+ reconstructZernike.zernike_reconstruction(zernike_coeffs, 2.2, 0.633, 1); 
 
-reconstructZernike.zernike_reconstruction(zernike_coeffs,grid_size);
-reconstructZernike.zernike_reconstruction_non_circle(zernike_coeffs,grid_size,grid_size);
+%  reconstructZernike.zernike_reconstruction(zernike_coeffs,grid_size);
+% reconstructZernike.zernike_reconstruction_non_circle(zernike_coeffs,grid_size,grid_size);
 
 %% Biến toàn cục (tham số đầu vào các hàm)
 DPD = 25;
 he_so = 1;
 poly_order = 3;
-maxIntensity = 100000;  % Cường độ tối đa để hiển thị ảnh
+maxIntensity =100000 ;  % Cường độ tối đa để hiển thị ảnh
 
 %% Đọc ảnh hologram đầu vào:
 %
@@ -83,9 +67,11 @@ maxIntensity = 100000;  % Cường độ tối đa để hiển thị ảnh
 %   inputManual : logical
 %       1 - Đọc file bằng tay từ `filePath`
 %       0 - Tự động tìm file mới nhất trong `folder_path`
-inputManual = 0;
+inputManual = 1;
 folder_path = 'C:\Users\admin\Máy tính\Lab thầy Tùng\Thi nghiem\6-12';
-filePath = '8.bmp';
+% filePath = '8.bmp';
+
+filePath = 'nRBC (41).bmp';
 
 hologram = processing.loadHologram(inputManual, filePath, folder_path);
 
