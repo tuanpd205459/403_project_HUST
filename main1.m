@@ -13,22 +13,7 @@ addpath(filePath);
 
 
 %% Thêm đường dẫn tới file chứa hệ số Zernike
-folderPath = "C:\Users\admin\Máy tính\Lab thầy Tùng\Tài liệu a Tuân\Data Obj wave 2\Data Obj wave 2";
-columnIndex = 4;    % Lấy dữ liệu từ cột 4
-rowRange = [1, 66]; % Lấy dữ liệu từ hàng 1 đến 66
 
-meanValues = reconstructZernike.computeMeanFromCSV(folderPath, columnIndex, rowRange);
-% % Hiển thị kết quả
-% disp('Giá trị trung bình cộng của cột 4 từ hàng 1 đến 66 trong tất cả các file CSV:');
-% disp(meanValues);
-
-
-%% Reconstructing wavefront from Zernike polys
- zernike_coeffs = meanValues;
- reconstructZernike.zernike_reconstruction(zernike_coeffs, 2.2, 0.633, 1); 
-
-%  reconstructZernike.zernike_reconstruction(zernike_coeffs,grid_size);
-% reconstructZernike.zernike_reconstruction_non_circle(zernike_coeffs,grid_size,grid_size);
 
 %% Biến toàn cục (tham số đầu vào các hàm)
 DPD = 25;
@@ -71,7 +56,7 @@ inputManual = 1;
 folder_path = 'C:\Users\admin\Máy tính\Lab thầy Tùng\Thi nghiem\6-12';
 % filePath = '8.bmp';
 
-filePath = 'nRBC (41).bmp';
+filePath = 'image_2025-03-30T11-50-50.887.bmp';
 
 hologram = processing.loadHologram(inputManual, filePath, folder_path);
 
@@ -112,6 +97,8 @@ methodGroup = 'poisson';
 methodType ='';
 unwrapped_Phase = unwrapping.unwrapPhase(wrappedPhase, methodGroup);
 
+
+
 %%
 %he_so = DPD;
 wavelength = 633e-9;
@@ -123,6 +110,13 @@ offSet = 10;
 reconSurface = reconSurface(offSet:end-offSet,offSet:end-offSet);  % cắt/chọn vùng để vẽ đồ thị
 
 temp_r = reconSurface;
+load('averageMatrix.mat');
+save("reconSurface.mat");
+run('main_tai_tao_pha_bu.m'); 
+run('catanh.m');
+run('bu_pha.m');
+load("bu_pha.mat");
+reconSurface = result;
 %% Chuyển đổi đơn vị (sang nanomet nếu cần)
 [reconSurface, dimensional] = processing.postProcess.myConvertUnit(reconSurface);
 
@@ -166,9 +160,9 @@ surfaceParams = {reconSurface, Ra, Rz, Sa, Sq, Sz, Ra_line, positionLine,...
 visualization.display2D(surfaceParams);
 
 %% Tạo figure 3D với đơn vị thích hợp
-enableDisplayCrossSection3D = true;     %bật tắt mặt cắt ngang ảnh 3D
+enableDisplayCrossSection3D = false;     %bật tắt mặt cắt ngang ảnh 3D
 
-visualization.display3D(surfaceParams, true);
+visualization.display3D(surfaceParams, enableDisplayCrossSection3D);
 
 
 %% end
