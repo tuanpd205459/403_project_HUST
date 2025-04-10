@@ -44,8 +44,9 @@ shading interp; colormap jet; colorbar;
 title('Bề mặt sau khi trừ');
 xlabel('X'); ylabel('Y'); zlabel('Z');
 
+
 % Lưu kết quả tạm thời
- save('averageMatrix.mat');
+ save('main_tai_tao_pha_bu.mat');
 % Hàm xử lý dữ liệu từ thư mục
 function averageMatrix = processCSVData(folderPath, rowRange, columnRange, numRows, numCols)
     csvFiles = dir(fullfile(folderPath, '*.csv'));

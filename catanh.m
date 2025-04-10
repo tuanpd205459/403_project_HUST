@@ -5,7 +5,7 @@ clc; clear; close all;
 % Mục tiêu: Cắt ảnh thực 5.4x4.2 mm về 4.899x3.660 mm, nội suy lên 1421x1061
 
 %% 1. Đọc dữ liệu ảnh từ Excel
-load('averageMatrix.mat');
+load('main_tai_tao_pha_bu.mat');
 Z = averageMatrix;
 [M, N] = size(Z);
 
@@ -53,7 +53,10 @@ target_cols = 1061;
 
 Z_interp = interp2(X_cut, Y_cut, Z_cut, X_new, Y_new, 'linear');
 
-Z_interp = Z_interp * 633*1e-9;
+%% 
+% Chuyển sang đơn vị nanomet
+Z_interp = Z_interp * 633;
+
 %% 5. Vẽ ảnh 3D
 figure;
 surf(X_new, Y_new, Z_interp);
@@ -61,21 +64,10 @@ shading interp;
 colormap('jet');
 xlabel('X (mm)');
 ylabel('Y (mm)');
-zlabel('Cường độ');
+zlabel('Nanomet');
 title('Bề mặt ảnh sau cắt và nội suy');
 colorbar;
 
 %% 7. Lưu ảnh kết quả ra file Excel
-% writematrix(Z_interp, 'anh_noi_suy_1421x1061.xlsx');
-save("data_saunoisuy.mat");
-%%
-load("averageMatrix.mat");
-figure;
-surf(X, Y, averageMatrix);
-shading interp;
-colormap('jet');
-xlabel('X (mm)');
-ylabel('Y (mm)');
-zlabel('Cường độ');
-title('Bề mặt ảnh sau ban đầu');
-colorbar;
+
+save("cat_anh.mat");

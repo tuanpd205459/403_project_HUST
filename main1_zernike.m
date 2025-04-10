@@ -9,22 +9,18 @@ clc;
 filePath = 'C:\Users\admin\Máy tính\Lab thầy Tùng\Tài liệu a Tuân\Ảnh mẫu';
 addpath(filePath);
 
-
-
-
 %% Thêm đường dẫn tới file chứa hệ số Zernike
-folderPath = "C:\Users\admin\Máy tính\Lab thầy Tùng\Tài liệu a Tuân\Data Obj wave 2\Data Obj wave 2";
+folderPath = "C:\Users\admin\Máy tính\Lab thầy Tùng\Tài liệu a Tuân\Data obj wave 5 29-3\Data obj wave 5 29-3";
 columnIndex = 4;    % Lấy dữ liệu từ cột 4
 rowRange = [1, 66]; % Lấy dữ liệu từ hàng 1 đến 66
 
-% meanValues = reconstructZernike.computeMeanFromCSV(folderPath, columnIndex, rowRange);
+meanValues = reconstructZernike.computeMeanFromCSV(folderPath, columnIndex, rowRange);
 
 
 
 %% Reconstructing wavefront from Zernike polys
  zernike_coeffs = meanValues;
  reconstructZernike.zernike_reconstruction(zernike_coeffs, 2.2, 0.633, 1); 
-
 
 %% Biến toàn cục (tham số đầu vào các hàm)
 DPD = 25;
@@ -67,7 +63,7 @@ inputManual = 1;
 folder_path = 'C:\Users\admin\Máy tính\Lab thầy Tùng\Thi nghiem\6-12';
 % filePath = '8.bmp';
 
-filePath = 'nRBC (41).bmp';
+filePath = '41.bmp';
 
 hologram = processing.loadHologram(inputManual, filePath, folder_path);
 
@@ -108,6 +104,8 @@ methodGroup = 'poisson';
 methodType ='';
 unwrapped_Phase = unwrapping.unwrapPhase(wrappedPhase, methodGroup);
 
+% Ví dụ sử dụng
+% reconstructZernike.zernike_fitting2(unwrapped_Phase, 100, 3);
 %%
 %he_so = DPD;
 wavelength = 633e-9;
@@ -115,10 +113,56 @@ wavelength = 633e-9;
 reconSurface = (unwrapped_Phase .* wavelength .* he_so) / (4*pi);
 reconSurface = reconSurface * 10^6;     
 
+
 offSet = 10;      
 reconSurface = reconSurface(offSet:end-offSet,offSet:end-offSet);  % cắt/chọn vùng để vẽ đồ thị
 
 temp_r = reconSurface;
+%%
+
+z_map = temp_r;
+
+%% m, n indices
+coeff = zeros(1, 2);
+coeff(1) = 20; 
+coeff(2) = 10;
+[output_coeff, z_recon_map] = ZernikeLegendreFit(z_map, "2indices", coeff);
+
+% Hiển thị bản đồ ban đầu
+figure;
+mesh(z_map); 
+colormap(jet);
+shading interp;
+colorbar();
+title('Bản đồ ban đầu');
+axis equal;
+
+% Hiển thị bản đồ sau khi khớp Zernike-Legendre
+figure; 
+mesh(z_recon_map); 
+colormap(jet);
+colorbar();
+title('Bản đồ khớp Zernike-Legendre');
+
+% Hiển thị sai số giữa bản đồ ban đầu và bản đồ khớp
+figure;
+mesh(z_map - z_recon_map);  
+colormap(jet);
+colorbar();
+title('Sai số giữa bản đồ ban đầu và bản đồ khớp');
+
+% Hiển thị hệ số Zernike-Legendre
+figure;
+mesh(output_coeff{1}'); 
+colormap(jet);
+colorbar();
+title('Hệ số Zernike-Legendre');
+
+% Hiển thị hệ số trên Command Window
+disp('Hệ số Zernike-Legendre:');
+disp(output_coeff{1}');
+
+
 %% Chuyển đổi đơn vị (sang nanomet nếu cần)
 [reconSurface, dimensional] = processing.postProcess.myConvertUnit(reconSurface);
 
@@ -130,6 +174,7 @@ if strcmpi(detectFringe, 'vân ngang')
 end
 
 %% Post Processing
+figure;
 imagesc(reconSurface);
 hold on;    
 title('Mặt phẳng pha'); % Đặt tiêu đề cho hình ảnh

@@ -26,13 +26,35 @@ title('Biến đổi Fourier của Hologram');
 % Vẽ hình chữ nhật để chọn ROI
 if(selectRegion_HCN)
     [pos, xRec, yRec, widthRec, heightRec] = myDrawRec();
-    fprintf("Kich thuoc hinh vuong: %.2fx %.4f\n Dien tich duong tron: %.2f \n", widthRec,heightRec, widthRec*heightRec);
+    fprintf("Kich thuoc hinh vuong: %.2fx %.4f\nDien tich HCN: %.2f \n", widthRec,heightRec, widthRec*heightRec);
+    % Xacs dinh tam bac 1
+    umax = xRec + widthRec/2;
+    vmax = yRec + heightRec/2;
+    % Tính góc θx (đơn vị radian)
+    u0 = numRows/2+1;
+    v0 = numCols/2 +1;
+    delta_xy = 3.45*1e-6;
+    lambda = 633*1e-9;
+    tilt_angleX = asin(abs(u0 - umax) * lambda / (numRows * delta_xy));
+    tilt_angleY = asin(abs(v0 - vmax) * lambda / (numCols * delta_xy));
+
+    % Đổi sang độ nếu cần
+    theta_x_deg = rad2deg(tilt_angleX);
+    theta_y_deg = rad2deg(tilt_angleY);
+
+
+    
+    % Hiển thị giá trị góc nghiêng - Radian
+    disp(['Gia tri goc nghieng Theta_x va Theta_y la: (', num2str(tilt_angleX), ', ', num2str(tilt_angleY), ') - radian']);
+
+    % Hiển thị giá trị góc nghiêng - Độ
+    disp(['Gia tri goc nghieng Theta_x va Theta_y la: (', num2str(theta_x_deg), ', ', num2str(theta_y_deg), ') - Độ']);
 
     % Trích xuất nội dung ROI (bậc 1)
     roiContent = fourierTransform(yRec:yRec + heightRec - 1, xRec:xRec + widthRec - 1);
 else
     [centerCir_X, centerCir_Y, radiusCir] = myDrawCir();
-    fprintf("Ban kinh duong tron: %.2f\n Dien tich duong tron: %.2f \n", radiusCir, 3.14*radiusCir*radiusCir);
+    fprintf("Ban kinh duong tron: %.2f\nDien tich duong tron: %.2f \n", radiusCir, 3.14*radiusCir*radiusCir);
     roiContent = fourierTransform(centerCir_Y-radiusCir:centerCir_Y+radiusCir-1, centerCir_X-radiusCir:centerCir_X+radiusCir-1);
 end
 
@@ -102,8 +124,6 @@ hold off;
 
 % Thiết lập callback để cập nhật tâm trong quá trình di chuyển hình chữ nhật
 addlistener(roi, 'MovingROI', @(src, evt) updateCenterRectangle(src, centerMarker));
-
-
 
 
 wait(roi);  % Double-click to confirm the ROI

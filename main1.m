@@ -9,9 +9,6 @@ clc;
 filePath = 'C:\Users\admin\Máy tính\Lab thầy Tùng\Tài liệu a Tuân\Ảnh mẫu';
 addpath(filePath);
 
-
-
-
 %% Thêm đường dẫn tới file chứa hệ số Zernike
 
 
@@ -56,12 +53,14 @@ inputManual = 1;
 folder_path = 'C:\Users\admin\Máy tính\Lab thầy Tùng\Thi nghiem\6-12';
 % filePath = '8.bmp';
 
-filePath = 'image_2025-03-30T11-50-50.887.bmp';
+filePath = '41.bmp';
 
 hologram = processing.loadHologram(inputManual, filePath, folder_path);
 
 %% processFourier: thực hiện các phép biến đổi Fourier và chọn vùng bậc +1
+% wrappedPhase = processing.processFourier(hologram);
 wrappedPhase = processing.processFourier(hologram);
+
 
 
 %% Chọn thuật toán unwrapping
@@ -101,25 +100,60 @@ unwrapped_Phase = unwrapping.unwrapPhase(wrappedPhase, methodGroup);
 
 %%
 %he_so = DPD;
-wavelength = 633e-9;
+wavelength = 633;
 % DPD=1; % Do phong dai cua he quang
-reconSurface = (unwrapped_Phase .* wavelength .* he_so) / (4*pi);
-reconSurface = reconSurface * 10^6;     
-
+% reconSurface = (unwrapped_Phase .* wavelength .* he_so) / (4*pi);
+% reconSurface = reconSurface * 10^6;     
+reconSurface = unwrapped_Phase;
 offSet = 10;      
 reconSurface = reconSurface(offSet:end-offSet,offSet:end-offSet);  % cắt/chọn vùng để vẽ đồ thị
 
 temp_r = reconSurface;
-load('averageMatrix.mat');
-save("reconSurface.mat");
+% load('averageMatrix.mat');
+save("main1.mat");
 run('main_tai_tao_pha_bu.m'); 
 run('catanh.m');
 run('bu_pha.m');
 load("bu_pha.mat");
 reconSurface = result;
+
 %% Chuyển đổi đơn vị (sang nanomet nếu cần)
 [reconSurface, dimensional] = processing.postProcess.myConvertUnit(reconSurface);
+%%
+Z = reconSurface;
+% Kích thước bề mặt
+[rows, cols] = size(Z);
 
+% Tạo lưới tọa độ tương ứng
+[X, Y] = meshgrid(1:cols, 1:rows);
+
+% Vector hóa dữ liệu để phù hợp với fit đa biến
+x = X(:);
+y = Y(:);
+z = Z(:);
+
+% Fit mặt phẳng Z = a*x + b*y + c bằng hồi quy tuyến tính
+A = [x, y, ones(size(x))];
+coeff = A \ z;  % giải phương trình bình phương tối thiểu
+
+% Tính mặt phẳng nghiêng đã khớp
+Zfit = reshape(A * coeff, size(Z));
+
+% Trừ mặt phẳng nghiêng khỏi bề mặt ban đầu
+Zcorr = Z - Zfit;
+
+
+
+% Hiển thị bề mặt sau khi hiệu chỉnh
+figure;
+surf(X, Y, Zcorr);
+title('Bề mặt sau hiệu chỉnh nghiêng');
+xlabel('X');
+ylabel('Y');
+zlabel('Chiều cao đã hiệu chỉnh');
+colorbar;
+shading interp;
+axis tight;
 %% Xác định chiều vân (ngang/dọc)
 detectFringe = processing.postProcess.detectFringeSobel(reconSurface);
 disp(detectFringe);
@@ -128,6 +162,7 @@ if strcmpi(detectFringe, 'vân ngang')
 end
 
 %% Post Processing
+figure;
 imagesc(reconSurface);
 hold on;    
 title('Mặt phẳng pha'); % Đặt tiêu đề cho hình ảnh
@@ -136,6 +171,15 @@ title('Mặt phẳng pha'); % Đặt tiêu đề cho hình ảnh
 positionLine = processing.postProcess.myDrawLine();  
 
 crossLine = processing.postProcess.myCrossSection(reconSurface, positionLine);
+
+mcn_da_xoay = processing.postProcess.myCrossSection(Zcorr', positionLine);
+%%
+% Vẽ đồ thị 2D
+ numPixels = length(mcn_da_xoay);
+    x_real2D = (1:numPixels) * 3.45 / DPD; % Trục x theo micromet
+    figure();
+    plot(mcn_da_xoay, 'k');
+    title("Mat cat ngang da xoay");
 
 % tinh đường trung bình mean_line
 meanLine = processing.postProcess.myMeanLine(crossLine, poly_order);
