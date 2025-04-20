@@ -217,53 +217,92 @@ visualization.display3D(surfaceParams, enableDisplayCrossSection3D);
 
 
 %% end1
-% 
-% %% Post Processing 2
-% figure;
-% imagesc(Zcorr);
-% hold on;    
-% title('Mặt phẳng pha'); % Đặt tiêu đề cho hình ảnh
-% 
-% % Vẽ đường thằng cắt ngang
-% positionLine = processing.postProcess.myDrawLine();  
-% 
-% crossLine = processing.postProcess.myCrossSection(Zcorr, positionLine);
-% 
-% mcn_da_xoay = processing.postProcess.myCrossSection(Zcorr, positionLine);
-% %%
-% % Vẽ đồ thị 2D
-%  numPixels = length(mcn_da_xoay);
-%     x_real2D = (1:numPixels) * 3.45 / DPD; % Trục x theo micromet
-%     figure();
-%     plot(mcn_da_xoay, 'k');
-%     title("Mat cat ngang da xoay");
-% 
-% % tinh đường trung bình mean_line
-% meanLine = processing.postProcess.myMeanLine(crossLine, poly_order);
-% 
-% %% Tính toán độ nhám 2D
-% [Ra, Ra_line] = roughness.myCalcRa(crossLine, meanLine, DPD);
-% 
-% Rz = roughness.myCalcRz(crossLine, meanLine);
-% 
-% %% Tính toán độ nhám 3D
-% Sz=  roughness.myCalcSz(Zcorr,poly_order);
-% % Độ nhám trung bình Sa
-% Sa = roughness.myCalcSa(Zcorr, poly_order);
-% % Độ nhám Sq
-% Sq = roughness.myCalcSq(Zcorr, poly_order);
-% 
-% %% Tổng hợp thông số độ nhám
-% surfaceParams = {Zcorr, Ra, Rz, Sa, Sq, Sz, Ra_line, positionLine,...
-%                                     crossLine, meanLine, dimensional, DPD}; 
-% 
-% %% Vẽ đồ thị 2D
-% visualization.display2D(surfaceParams);
-% 
-% %% Tạo figure 3D với đơn vị thích hợp
-% enableDisplayCrossSection3D = false;     %bật tắt mặt cắt ngang ảnh 3D
-% 
-% visualization.display3D(surfaceParams, enableDisplayCrossSection3D);
+
+%% Post Processing 2
+figure;
+imagesc(Zcorr);
+hold on;    
+title('Mặt phẳng pha'); % Đặt tiêu đề cho hình ảnh
+
+% Vẽ đường thằng cắt ngang
+positionLine = processing.postProcess.myDrawLine();  
+
+crossLine = processing.postProcess.myCrossSection(Zcorr, positionLine);
+
+mcn_da_xoay = processing.postProcess.myCrossSection(Zcorr, positionLine);
+%%
+% Vẽ đồ thị 2D
+ numPixels = length(mcn_da_xoay);
+    x_real2D = (1:numPixels) * 3.45 / DPD; % Trục x theo micromet
+    figure();
+    plot(mcn_da_xoay, 'k');
+    title("Mat cat ngang da xoay");
+
+% tinh đường trung bình mean_line
+meanLine = processing.postProcess.myMeanLine(crossLine, poly_order);
+
+%% Tính toán độ nhám 2D
+[Ra, Ra_line] = roughness.myCalcRa(crossLine, meanLine, DPD);
+
+Rz = roughness.myCalcRz(crossLine, meanLine);
+
+%% Tính toán độ nhám 3D
+Sz=  roughness.myCalcSz(Zcorr,poly_order);
+% Độ nhám trung bình Sa
+Sa = roughness.myCalcSa(Zcorr, poly_order);
+% Độ nhám Sq
+Sq = roughness.myCalcSq(Zcorr, poly_order);
+
+%% Tổng hợp thông số độ nhám
+surfaceParams = {Zcorr, Ra, Rz, Sa, Sq, Sz, Ra_line, positionLine,...
+                                    crossLine, meanLine, dimensional, DPD}; 
+
+%% Vẽ đồ thị 2D
+visualization.display2D(surfaceParams);
+
+%% Tạo figure 3D với đơn vị thích hợp
+enableDisplayCrossSection3D = false;     %bật tắt mặt cắt ngang ảnh 3D
+
+visualization.display3D(surfaceParams, enableDisplayCrossSection3D);
 
 %%
+% Hàm xử lý dữ liệu từ thư mục
+function averageMatrix = processCSVData(folderPath, rowRange, columnRange, numRows, numCols)
+    csvFiles = dir(fullfile(folderPath, '*.csv'));
+    numFiles = length(csvFiles);
+    
+    if numFiles == 0
+        error('Không tìm thấy file CSV nào trong thư mục: %s', folderPath);
+    end
+    
+    allData = cell(1, numFiles);
+    for i = 1:numFiles
+        data = readmatrix(fullfile(folderPath, csvFiles(i).name));
+        
+        if size(data, 1) >= rowRange(2) && size(data, 2) >= columnRange(2)
+            allData{i} = data(rowRange(1):rowRange(2), columnRange(1):columnRange(2));
+        else
+            warning('File %s không đủ kích thước.', csvFiles(i).name);
+            allData{i} = NaN(numRows, numCols);
+        end
+    end
+    
+    % Tính trung bình cộng
+    averageMatrix = mean(cat(3, allData{:}), 3, 'omitnan');
+end
+
+function [reconSurface, dimensional] = myConvertUnit(reconSurface)
+    % Kiểm tra giá trị lớn nhất để xác định đơn vị
+%     if (max(reconSurface(:))-min(reconSurface(:))) < 10
+    if max(abs(reconSurface(:))) > 1000
+        scaleFactor = 10^3; % Chuyển từ nanomet sang micromet
+        dimensional = 'micromet';
+    else
+        scaleFactor = 1;  
+        dimensional = 'nanomet';
+    end
+
+    % Chuyển đổi đơn vị
+    reconSurface = reconSurface / scaleFactor;
+end
 

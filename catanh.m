@@ -1,6 +1,6 @@
 % Script: cat_noisuy_anh.m
 % Mục tiêu: Cắt ảnh thực 5.4x4.2 mm về 4.899x3.660 mm, làm mịn, nội suy lên 1421x1061
-clc; clear; close all;
+clc; clear;
 % Script: cat_noisuy_anh.m
 % Mục tiêu: Cắt ảnh thực 5.4x4.2 mm về 4.899x3.660 mm, nội suy lên 1421x1061
 
@@ -58,15 +58,14 @@ Z_interp = interp2(X_cut, Y_cut, Z_cut, X_new, Y_new, 'linear');
 Z_interp = Z_interp * 633;
 
 %% 5. Vẽ ảnh 3D
+
+% Hiển thị bề mặt sau khi trừ
 figure;
-surf(X_new, Y_new, Z_interp);
-shading interp;
-colormap('jet');
-xlabel('X (mm)');
-ylabel('Y (mm)');
-zlabel('Nanomet');
+mesh(X_new, Y_new, Z_interp);
+shading interp; colormap jet; colorbar;
 title('Bề mặt ảnh sau cắt và nội suy');
-colorbar;
+xlabel('X (mm)'); ylabel('Y (mm)'); zlabel('Nanomet');
+
 
 %% 7. Lưu ảnh kết quả ra file Excel
 

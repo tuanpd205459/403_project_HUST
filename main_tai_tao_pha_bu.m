@@ -1,4 +1,4 @@
-clc; clear; close all;
+clc; clear; 
 
 % Đường dẫn đến thư mục chứa các file CSV
 folderPaths = {
@@ -7,8 +7,8 @@ folderPaths = {
 };
 
 % Chỉ số cột và hàng cần lấy dữ liệu
-columnRange = [2, 38];
-rowRange = [105, 133];
+columnRange = [2, 38];       % Tổng cộng 37 cột
+rowRange = [105, 133];       % Tổng cộng 29 hàng
 numRows = rowRange(2) - rowRange(1) + 1;
 numCols = columnRange(2) - columnRange(1) + 1;
 
@@ -18,20 +18,34 @@ numCols = columnRange(2) - columnRange(1) + 1;
 averageMatrix1 = processCSVData(folderPaths{1}, rowRange, columnRange, numRows, numCols);
 averageMatrix2 = processCSVData(folderPaths{2}, rowRange, columnRange, numRows, numCols);
 
-% Vẽ bề mặt OBJ và REF
-[X, Y] = meshgrid(1:numCols, 1:numRows);
+wavelength = 633;
+averageMatrix1 = averageMatrix1 * wavelength;
+averageMatrix2 = averageMatrix2 * wavelength;
+
+%%
+% Tạo trục X và Y
+% Tạo trục X và Y thực sự theo đơn vị mm
+col_real = linspace(-2.7, 2.7, 37);  % Trục X (chiều ngang, ứng với cột)
+row_real = linspace(-2.1, 2.1, 29);  % Trục Y (chiều dọc, ứng với hàng)
+
+% Tạo lưới tọa độ từ trục thực
+[X, Y] = meshgrid(col_real, row_real);
+
+% Vẽ bề mặt tái tạo
+figure;
+mesh(X, Y, averageMatrix1);
+shading interp; colormap jet; colorbar;
+title('Bề mặt tái tạo sóng vật');
+xlabel('X (mm)');
+ylabel('Y (mm)');
+zlabel('Wavefront (nm)');
+
 
 figure;
-surf(X, Y, averageMatrix1);
+mesh(X, Y, averageMatrix2);
 shading interp; colormap jet; colorbar;
-title('Bề mặt tái tạo OBJ');
-xlabel('X'); ylabel('Y'); zlabel('Z');
-
-figure;
-surf(X, Y, averageMatrix2);
-shading interp; colormap jet; colorbar;
-title('Bề mặt tái tạo REF');
-xlabel('X'); ylabel('Y'); zlabel('Z');
+title('Bề mặt tái tạo của sóng tham chiếu');
+xlabel('X(mm)'); ylabel('Y(mm)'); zlabel('Nanomet');
 
 % Trừ bề mặt sóng
 % averageMatrix = averageMatrix1 - averageMatrix2;
@@ -39,10 +53,10 @@ averageMatrix = averageMatrix1;
 
 % Hiển thị bề mặt sau khi trừ
 figure;
-surf(X, Y, averageMatrix);
+mesh(X, Y, averageMatrix);
 shading interp; colormap jet; colorbar;
-title('Bề mặt sau khi trừ');
-xlabel('X'); ylabel('Y'); zlabel('Z');
+title('Sai khác giữa 2 bề mặt');
+xlabel('X(mm)'); ylabel('Y(mm)'); zlabel('Nanomet');
 
 
 % Lưu kết quả tạm thời

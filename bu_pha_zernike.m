@@ -5,15 +5,18 @@ clc; clear;
 load("main1.mat");
 load("main_tai_tao_pha_bu.mat");
 load('cat_anh.mat');
+load('main1_zernike.mat');
 
 %%
 
 
 % 1. Tính toán sự khác biệt
-result = reconSurface - Z_interp;
+reconSurface = reconSurface(1:1061, :);     % cắt ảnh hình tròn 1061 x1061;
+result = reconSurface - surface_zernike3;
 
-width_mm = 4.899;    % chiều rộng thực tế (mm)
+% width_mm = 4.899;    % chiều rộng thực tế (mm)
 height_mm = 3.660;   % chiều cao thực tế (mm)
+width_mm = 3.660;
 
 % 2. Lấy kích thước ảnh
 [rows, cols] = size(result);
@@ -21,7 +24,7 @@ height_mm = 3.660;   % chiều cao thực tế (mm)
 % 3. Tạo lưới tọa độ
 % Kích thước ảnh mong muốn
 target_cols = 1061;
-target_rows = 1421;
+target_rows = 1061;
 
 % Tạo lưới tọa độ mới (chuẩn hóa về kích thước mong muốn)
 [X, Y] = meshgrid(...
@@ -30,7 +33,7 @@ target_rows = 1421;
 %%
 [reconSurface, dimensional_reconSurface] = myConvertUnit(reconSurface);
 [result, dimensional_result] = myConvertUnit(result);
-[Z_interp, dimensional_Zinterp] = myConvertUnit(Z_interp);
+[surface_zernike3, dimensional_surface_zernike3] = myConvertUnit(surface_zernike3);
 
 
 % 4. Vẽ ảnh 3D
@@ -41,17 +44,17 @@ colormap('jet');
 xlabel('X (mm)');
 ylabel('Y (mm)');
 zlabel(dimensional_reconSurface);
-title('Ảnh bề mặt sau tái tạo');
+title('Ảnh bề mặt sau tái tạo (Zernike)');
 colorbar;
 %%
 figure;
-surf(X, Y, Z_interp);
+surf(X, Y, surface_zernike3);
 shading interp;
 colormap('jet');
 xlabel('X (mm)');
 ylabel('Y (mm)');
-zlabel(dimensional_Zinterp);
-title('Bề mặt nội suy');
+zlabel(dimensional_surface_zernike3);
+title('Bề mặt tai tao bang Zernike');
 colorbar;
 %%
 figure();
@@ -61,11 +64,11 @@ colormap('jet');
 xlabel('X (mm)');
 ylabel('Y (mm)');
 zlabel('Nanomet');
-title('Bề mặt ảnh sau bù pha');
+title('Bề mặt ảnh sau bù Zernike');
 zlabel(dimensional_result);
 colorbar;
 %%
-save('bu_pha.mat');
+save('bu_pha_zernike.mat');
 
 
 function [reconSurface, dimensional] = myConvertUnit(reconSurface)
